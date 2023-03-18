@@ -1,0 +1,61 @@
+version: "3.3"
+# Este es un archivo de docker-compose.yml para configurar el uso de contenedores de software.
+
+services:
+
+  db:
+    # Este servicio crea una base de datos de tipo Postgres.
+    image: postgres:14
+    container_name: db-dot
+    restart: always
+    volumes:
+      # Aquí se enlaza el contenido de dentro del contenedor con el directorio en nuestra PC
+      # de esa manera lo que guardemos en la base de datos va a quedar accesible en nuestra carpeta.
+      - ./database:/var/lib/postgresql/data
+
+    environment:
+      # Postgres nos exige que establezcamos un usuario por defecto, esto se hace por medio
+      # de variables de entorno. Según el hub de Postgres:
+      POSTGRES_DB: dotdrent_db
+      POSTGRES_USER: dot_user
+      POSTGRES_PASSWORD: 123Dotdrent!
+
+    ports:
+      # Enlazamos el puerto en el que trabaja Postgres, por defecto el 5432
+      - 5432:5432
+
+  adminer:
+    # Una interfaz para monitoreo y gestión de nuestra base de datos.
+    # Se puede acceder a ella en localhost:8080
+    container_name: adminer-dot
+    image: adminer:4.8.1
+    restart: always
+    ports:
+
+      - 8080:8080
+    # depends_on indica que este servicio depende de que primero inicie "db"
+    depends_on: ["db"]
+
+  dotdrent:
+    # build es el lugar desde donde toma los archivos para generar la imagen.
+    build: .
+    # Imágen a utilizar:
+    image: dotdrent
+    # Nombre del container:
+    container_name: dotdrent
+    # Comportamiento ante fallos y al iniciar el sistema:
+    restart: always
+    # Carpetas enlazadas:
+    volumes:
+      # Source code directory:
+      - type: bind
+        source: .
+        target: /opt/back_end
+    # Puertos enlazados:
+    ports:
+        - "8000:8000"
+    # Control de consola:
+    stdin_open: true
+    tty: true
+    depends_on: ["db"] 
+    command: python dotdrent/manage.py runserver 0.0.0.0:8000
