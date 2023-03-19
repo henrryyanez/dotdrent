@@ -19,6 +19,11 @@ Verifica que el servicio está ejecutándose en el puerto: 8000
 ```sh
 http://127.0.0.1:8000
 ```
+Crea una app base
+```sh
+python3 manage.py startapp dot_app
+```
+
  _Henrry Yánez_
 [*Cybersecurity Engineer*]
 ## License
